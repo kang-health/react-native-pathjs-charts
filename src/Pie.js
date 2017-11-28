@@ -42,7 +42,17 @@ export default class PieChart extends Component {
                 bold: true,
                 color: '#ECF0F1',
             },
+            selectedLabel: {
+                fontFamily: 'Arial',
+                fontSize: 16,
+                bold: true,
+                color: '#FFFFFF',
+            },
         },
+    }
+
+    state = {
+        selected: 0,
     }
 
     color(i) {
@@ -97,6 +107,7 @@ export default class PieChart extends Component {
         (this.props.options && this.props.options.center) || [x, y]
 
         let textStyle = fontAdapt(options.label)
+        let selectedTextStyle = fontAdapt(options.selectedLabel)
 
         let slices
 
@@ -153,6 +164,7 @@ export default class PieChart extends Component {
             const labelOffsetY = (textStyle.offset && textStyle.offset.y) || 0
 
             slices = chart.curves.map((c, i) => {
+                const textStyles = this.state.selected === i ? selectedTextStyle : textStyle
                 let fill =
                     (c.item.color && Colors.string(c.item.color)) ||
                     this.color(i)
@@ -169,11 +181,11 @@ export default class PieChart extends Component {
                         />
                         <G x={options.margin.left} y={options.margin.top}>
                             <Text
-                                fontFamily={textStyle.fontFamily}
-                                fontSize={textStyle.fontSize}
-                                fontWeight={textStyle.fontWeight}
-                                fontStyle={textStyle.fontStyle}
-                                fill={textStyle.fill}
+                                fontFamily={textStyles.fontFamily}
+                                fontSize={textStyles.fontSize}
+                                fontWeight={textStyles.fontWeight}
+                                fontStyle={textStyles.fontStyle}
+                                fill={textStyles.fill}
                                 textAnchor="middle"
                                 x={c.sector.centroid[0] + labelOffsetX}
                                 y={c.sector.centroid[1] + labelOffsetY}
@@ -199,6 +211,9 @@ export default class PieChart extends Component {
 
     handlePress(index) {
         const { chartCallBack } = this.props
+        this.setState({
+            selected: index,
+        })
         if (chartCallBack) {
             chartCallBack(index)
         }
