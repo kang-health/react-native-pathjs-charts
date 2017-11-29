@@ -107,7 +107,9 @@ export default class PieChart extends Component {
         (this.props.options && this.props.options.center) || [x, y]
 
         let textStyle = fontAdapt(options.label)
-        let selectedTextStyle = fontAdapt(options.selectedLabel)
+        let selectedTextStyle = options.selectedLabel
+        ? fontAdapt(options.selectedLabel)
+        : textStyle
 
         let slices
 

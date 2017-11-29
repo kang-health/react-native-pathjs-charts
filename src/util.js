@@ -219,6 +219,13 @@ export class Options {
             {}
         )
     }
+    get selectedLabel() {
+        return (
+            this.props.selectedLabel ||
+            (this.props.options && this.props.options.selectedLabel) ||
+            {}
+        )
+    }
     get animate() {
         return (
             this.props.animate ||
