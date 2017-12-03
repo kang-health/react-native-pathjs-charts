@@ -184,11 +184,11 @@ export default class PieChart extends Component {
                         {c.item.percentage >= this.props.labelThreshold && (
                             <G x={options.margin.left} y={options.margin.top}>
                                 <Text
-                                    fontFamily={textStyle.fontFamily}
-                                    fontSize={textStyle.fontSize}
-                                    fontWeight={textStyle.fontWeight}
-                                    fontStyle={textStyle.fontStyle}
-                                    fill={textStyle.fill}
+                                    fontFamily={textStyles.fontFamily}
+                                    fontSize={textStyles.fontSize}
+                                    fontWeight={textStyles.fontWeight}
+                                    fontStyle={textStyles.fontStyle}
+                                    fill={textStyles.fill}
                                     textAnchor="middle"
                                     x={c.sector.centroid[0] + labelOffsetX}
                                     y={c.sector.centroid[1] + labelOffsetY}
