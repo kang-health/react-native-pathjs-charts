@@ -55,6 +55,12 @@ export default class PieChart extends Component {
         selected: 0,
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (this.state.selected !== nextProps.selectedIndex) {
+            this.setState({ selected: nextProps.selectedIndex })
+        }
+    }
+
     color(i) {
         let color =
             this.props.color || (this.props.options && this.props.options.color)
