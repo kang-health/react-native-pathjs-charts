@@ -21,6 +21,10 @@ import _ from 'lodash'
 import 'babel-polyfill'
 const Pie = require('paths-js/pie')
 
+const calculateDelta = (x0, x1, offset, R) => {
+    return (x1 - x0) * offset / R
+}
+
 export default class PieChart extends Component {
     static defaultProps = {
         options: {
@@ -176,13 +180,31 @@ export default class PieChart extends Component {
                 let fill =
                     (c.item.color && Colors.string(c.item.color)) ||
                     this.color(i)
-                let stroke =
-                    typeof fill === 'string' ? fill : Colors.darkenColor(fill)
+                    let stroke = this.state.selected === i ? "#FFFFFF" : "none"
+                    let ox =
+                        this.state.selected === i
+                            ? calculateDelta(
+                                  centerX,
+                                  c.sector.centroid[0],
+                                  this.props.selectedPieceOffset,
+                                  R - r,
+                              )
+                            : 0
+                    let oy =
+                        this.state.selected === i
+                            ? calculateDelta(
+                                  centerY,
+                                  c.sector.centroid[1],
+                                  this.props.selectedPieceOffset,
+                                  R - r,
+                              )
+                            : 0
                 return (
-                    <G key={i}>
+                    <G x={ox} y={oy} key={i}>
                         <Path
                             d={c.sector.path.print()}
                             stroke={stroke}
+                            strokeWidth={3}                            
                             fill={fill}
                             fillOpacity={1}
                             onPressIn={this.handlePress.bind(this, i)}
