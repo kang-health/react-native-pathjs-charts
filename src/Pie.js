@@ -199,6 +199,23 @@ export default class PieChart extends Component {
                                   R - r,
                               )
                             : 0
+
+                    const labelPositionX =
+                            c.sector.centroid[0] +
+                            calculateDelta(
+                                centerX,
+                                c.sector.centroid[0],
+                                labelOffsetX,
+                                R - r,
+                            )
+                    const labelPositionY =
+                            c.sector.centroid[1] +
+                            calculateDelta(
+                                centerY,
+                                c.sector.centroid[1] - R / 2,
+                                labelOffsetY,
+                                R - r,
+                            )
                 return (
                     <G x={ox} y={oy} key={i}>
                         <Path
@@ -218,8 +235,8 @@ export default class PieChart extends Component {
                                     fontStyle={textStyles.fontStyle}
                                     fill={textStyles.fill}
                                     textAnchor="middle"
-                                    x={c.sector.centroid[0] + labelOffsetX}
-                                    y={c.sector.centroid[1] + labelOffsetY}
+                                    x={labelPositionX}
+                                    y={labelPositionY}
                                 >
                                     {c.item.name}
                                 </Text>
