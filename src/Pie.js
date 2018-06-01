@@ -21,8 +21,21 @@ import _ from 'lodash'
 import 'babel-polyfill'
 const Pie = require('paths-js/pie')
 
-const calculateDelta = (x0, x1, offset, R) => {
-    return (x1 - x0) * offset / R
+const vector = (start, end) => {
+    return { x: end.x - start.x, y: end.y - start.y }
+}
+
+const normalizedVector = vector => {
+    const length = Math.sqrt(vector.x * vector.x + vector.y * vector.y)
+    return { x: vector.x / length, y: vector.y / length }
+}
+
+const addVector = (a, b) => {
+    return { x: a.x + b.x, y: a.y + b.y }
+}
+
+const multiplyVector = (vector, value) => {
+    return { x: vector.x * value, y: vector.y * value }
 }
 
 export default class PieChart extends Component {
@@ -114,12 +127,12 @@ export default class PieChart extends Component {
         R = R || radius
 
         let [centerX, centerY] = this.props.center ||
-        (this.props.options && this.props.options.center) || [x, y]
+            (this.props.options && this.props.options.center) || [x, y]
 
         let textStyle = fontAdapt(options.label)
         let selectedTextStyle = options.selectedLabel
-        ? fontAdapt(options.selectedLabel)
-        : textStyle
+            ? fontAdapt(options.selectedLabel)
+            : textStyle
 
         let slices
 
@@ -172,56 +185,37 @@ export default class PieChart extends Component {
                     this.props.accessor || identity(this.props.accessorKey),
             })
 
-            const labelOffsetX = (textStyle.offset && textStyle.offset.x) || 0
-            const labelOffsetY = (textStyle.offset && textStyle.offset.y) || 0
+            const labelOffset = textStyle.offset || 0
 
             slices = chart.curves.map((c, i) => {
-                const textStyles = this.state.selected === i ? selectedTextStyle : textStyle
+                const textStyles =
+                    this.state.selected === i ? selectedTextStyle : textStyle
                 let fill =
                     (c.item.color && Colors.string(c.item.color)) ||
                     this.color(i)
-                    let stroke = this.state.selected === i ? "#FFFFFF" : "none"
-                    let ox =
-                        this.state.selected === i
-                            ? calculateDelta(
-                                  centerX,
-                                  c.sector.centroid[0],
-                                  this.props.selectedPieceOffset,
-                                  R - r,
-                              )
-                            : 0
-                    let oy =
-                        this.state.selected === i
-                            ? calculateDelta(
-                                  centerY,
-                                  c.sector.centroid[1],
-                                  this.props.selectedPieceOffset,
-                                  R - r,
-                              )
-                            : 0
+                let stroke = this.state.selected === i ? '#FFFFFF' : 'none'
 
-                    const labelPositionX =
-                            c.sector.centroid[0] +
-                            calculateDelta(
-                                centerX,
-                                c.sector.centroid[0],
-                                labelOffsetX,
-                                R - r,
-                            )
-                    const labelPositionY =
-                            c.sector.centroid[1] +
-                            calculateDelta(
-                                centerY,
-                                c.sector.centroid[1] - R / 2,
-                                labelOffsetY,
-                                R - r,
-                            )
+                const pieCenter = { x: centerX, y: centerY }
+                const sectorCenter = {
+                    x: c.sector.centroid[0],
+                    y: c.sector.centroid[1],
+                }
+                const sectorVector = vector(pieCenter, sectorCenter)
+                const norm = normalizedVector(sectorVector)
+                const labelPosition = addVector(
+                    sectorCenter,
+                    multiplyVector(norm, labelOffset),
+                )
+                const sectorOffset =
+                    this.state.selected === i
+                        ? multiplyVector(norm, this.props.selectedPieceOffset)
+                        : { x: 0, y: 0 }
                 return (
-                    <G x={ox} y={oy} key={i}>
+                    <G {...sectorOffset} key={i}>
                         <Path
                             d={c.sector.path.print()}
                             stroke={stroke}
-                            strokeWidth={3}                            
+                            strokeWidth={3}
                             fill={fill}
                             fillOpacity={1}
                             onPressIn={this.handlePress.bind(this, i)}
@@ -235,8 +229,8 @@ export default class PieChart extends Component {
                                     fontStyle={textStyles.fontStyle}
                                     fill={textStyles.fill}
                                     textAnchor="middle"
-                                    x={labelPositionX}
-                                    y={labelPositionY}
+                                    x={labelPosition.x}
+                                    y={labelPosition.y}
                                 >
                                     {c.item.name}
                                 </Text>
